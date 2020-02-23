@@ -321,3 +321,206 @@ library(caret)
 train = mtcars[intrain,]
 test = mtcars[- intrain, ] 
 prop.table(table(train$am)); prop.table(table(test$am)) #proprtion of 0 and 1 in train and test set
+
+
+
+#linear Regresssion
+head(women)
+model=lm(weight~height, data = women)
+summary(model)
+
+#y = mx + c
+#weight = 3.45 * height + -87.51
+
+plot(x=women$height, y=women$weight)
+abline(model) #line of best fit
+residuals(model) #residual, difference betwn actual and predicted values
+women$weight
+predwt = predict(model, newdata=women, type = 'response') #prediction of Y value
+head(women)
+cbind(women, predwt, res=women$weight-predwt)
+
+summary(model)
+sqrt(sum(residuals(model)^2))  #SSE
+#adjusted r-squared for more than one variable
+#mutiple r-squared value for only one varible
+range(women$height)
+ndata = data.frame(height=66.5) #data frame
+predict(model, newdata = ndata, type='response') #prediction fro 66.5 weight
+
+
+#case2: LR----
+#using google sheet
+link = "https://docs.google.com/spreadsheets/d/1h7HU0X_Q4T5h5D1Q36qoK40Tplz94x_HZYHOJJC_edU/edit#gid=2023826519"
+library(gsheet)
+df=as.data.frame(gsheet2tbl(link))
+head(df)
+model2=lm(Y~X, data = df)
+summary(model2)
+
+#interpretation based on summary
+#fstatistics p-value less than 5%, model exist
+#we will use multiple r-squared value
+#Sales=1.669*area + 0.9645
+
+plot(x=df$X, y=df$Y)
+abline(model2)
+
+resid(model2)
+ndata2 = data.frame(X=c(3,4))
+predict(model2, newdata = ndata2, type = 'response')
+
+
+#Multiple Linear Regression
+
+link2 = "https://docs.google.com/spreadsheets/d/1h7HU0X_Q4T5h5D1Q36qoK40Tplz94x_HZYHOJJC_edU/edit#gid=1595306231"
+library(gsheet)
+df=as.data.frame(gsheet2tbl(link2))
+head(df)
+model3=lm(sqty~price+promotion, data = df)
+summary(model3)
+#adjuested r-squared interpretation: 74.21 variation in sales in is due to independant variables
+#intercept value is 5837 and this value is for range of price and promotion values given in your data
+#Linear regression if for intrapolation
+plot(x=df$price, y=df$sqty)
+abline(model3, col=2)
+
+plot(x=df$promotion, y=df$sqty)
+abline(model3)
+range(df$price); range(df$promotion)
+(ndata3=data.frame(price=c(60,75), promotion=c(300,500)))
+predict(model3, newdata=ndata3, type='response')
+
+
+#decision Tree
+# Decision Tree - Classification
+#we want predict for combination of input variables, is a person likely to survive or not
+
+#import data from online site
+path = 'https://raw.githubusercontent.com/DUanalytics/datasets/master/csv/titanic_train.csv'
+titanic <- read.csv(path)
+head(titanic)
+names(titanic)
+data = titanic[,c(2,3,5,6,7)]  #select few columns only
+head(data)
+dim(data)
+#load libraries
+library(rpart)
+library(rpart.plot)
+str(data)
+#Decision Tree
+names(data)
+table(data$Survived)
+prop.table(table(data$Survived))
+
+str(data)
+data$Pclass = factor(data$Pclass)
+fit <- rpart(Survived ~ ., data = data, method = 'class')
+fit
+rpart.plot(fit, extra = 104, cex=.8,nn=T)  #plot
+head(data)
+printcp(fit) #select complexity parameter
+prunetree2 = prune(fit, cp=.017544)
+rpart.plot(prunetree2, cex=.8,nn=T, extra=104)
+prunetree2
+nrow(data)
+table(data$Survived)
+# predict for Female, pclass=3, siblings=2, what is the chance of survival
+
+#Predict class category or probabilities
+(testdata = sample_n(data,2))
+predict(prunetree2, newdata=testdata, type='class')
+predict(prunetree2, newdata=testdata, type='prob')
+str(data)
+testdata2 = data.frame(Pclass=factor(2), Sex=factor('male'), Age=15, SibSp=2)
+testdata2
+predict(prunetree2, newdata = testdata2, type='class')
+predict(prunetree2, newdata = testdata2, type='prob')
+#Use decision trees for predicting
+#customer is likely to buy a product or not with probabilities
+#customer is likely to default on payment or not with probabilities
+#Student is likely to get selected, cricket team likely to win etc
+
+#Imp steps
+#select columns for prediction
+#load libraries, create model y ~ x1 + x2 
+#prune the tree with cp value
+#plot the graph
+#predict for new cases
+
+#rpart, CART, classification model
+#regression decision = predict numerical value eg sales
+
+
+#CLustering
+marks1=trunc(rnorm(n=30, mean=70,sd=8))
+sum(marks1)
+dfs=data.frame(marks1=marks1)
+head(dfs)
+km3 = kmeans(dfs, centers = 3)
+attributes(km3)
+km3$cluster
+km3$centers
+km3$size
+sort(dfs$marks1)
+cbind(dfs, km3$cluster)
+dfs$cluster = km3$cluster
+head(dfs)
+dfs %>% arrange(cluster)
+dist(dfs[1:5,])
+
+
+#another example
+set.seed(1234)
+marks1=trunc(rnorm(n=30, mean=70,sd=8))
+marks2=trunc(rnorm(n=30, mean=120,sd=10))
+
+df6=data.frame(marks1, marks2)
+head(df6)
+km3B = kmeans(df6, centers = 3)
+attributes(km3B)
+km3B$cluster
+km3B$centers
+km3B$size
+
+cbind(df6, km3B$cluster) #which row which cluster
+df6$cluster = km3B$cluster
+head(df6)
+df6 %>% arrange(cluster)
+df6[1:5,]
+dist(df6[1:5,])
+plot(df6$marks1, df6$marks2, col=df6$cluster)
+
+
+#scaling (Incomplete code)
+set.seed(1234)
+marks1=trunc(rnorm(n=30, mean=70,sd=8))
+marks2=trunc(rnorm(n=30, mean=120,sd=10))
+
+df6=data.frame(marks1, marks2)
+head(df6)
+km3B = kmeans(df6, centers = 3)
+attributes(km3B)
+km3B$cluster
+km3B$centers
+km3B$size
+
+cbind(df6, km3B$cluster) #which row which cluster
+df6$cluster = km3B$cluster
+head(df6)
+df6 %>% arrange(cluster)
+df6[1:5,]
+dist(df6[1:5,])
+plot(df6$marks1, df6$marks2, col=df6$cluster)
+
+
+#Word colud
+library(wordcloud2)
+df=data.frame(word=c('mdi','iim','imt'), freq=c(20,23,15))
+df
+par(mar=c(0,0,0,0))
+wordcloud2(df)
+head(demoFreq) #demoFreq is a built in data set
+dim(demoFreq)
+par(mar=c(0,0,0,0))
+wordcloud2(demoFreq)

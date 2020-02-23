@@ -207,4 +207,117 @@ names(students)
 names(meltSum1)
 head(meltSum1)
 ggplot(meltSum1 %>% group_by(gender, program, subject) %>% summarise(meanMarks = round(mean(marks))), aes(x=gender, y=meanMarks, fill=program)) + geom_bar(stat='identity', position = position_dodge2(.7)) + labs(title = 'subject -program - gender - mean marks') + facet_grid(~subject) + geom_text(aes(label=meanMarks))
-                                                                                                                                                                                                                                                                                                        
+
+#Day3:23-Feb-2020----
+
+#missingvalue
+(x = c(1,2,4,5))
+(x2=c(1,2,,4,,5))##error
+(x2=c(1,2,NA,4,NA,5))
+sum(x2) #this will not give sum
+?sum
+sum(x2, na.rm = T)
+is.na(x2)
+length(x2)
+sum(is.na(x2)) #sum of missing value considering true as 1 and false as 0
+sum(is.na(x2))/length(x2) #% 
+x2[is.na(x2)]=mean(x2, na.rm=T)
+x2
+
+
+#VIM
+library(VIM)
+data(sleep)
+sleep; ?sleep
+head(sleep)
+tail(sleep)
+str(sleep) #structure of the data
+dim(sleep)
+summary(sleep) #gives summary of the table
+x=200:300
+quantile(x) #what does quantile do?
+
+head(sleep)
+is.na(sleep)
+sum(is.na(sleep))
+colSums(is.na(sleep)) #sum of missing value in every column
+rowSums(is.na(sleep))
+sum(complete.cases(sleep)) #sum of rows which does not have missing value
+sleep[complete.cases(sleep),] #get only rows which does not have missing value
+sleep[!complete.cases(sleep),] #get only rows which have missing value
+
+#Ayush's query
+xy=colSums(is.na(sleep))
+xy
+xy[xy>0]
+c1 = names(xy[xy>0])
+sleep[,c1]
+c1 = names(xy)
+
+
+#partioning
+(x=1:100)
+s1=sample(x, size=70)
+length(s1)
+sum(s1) #sum will be different every time as sample is different
+
+(x=1:100)
+set.seed(1354)
+s1=sample(x, size=70)
+length(s1)
+sum(s1) #now the sum will be same
+
+s2=sample(x, size = .7*length(x))
+length(s2)
+x
+
+library(dplyr)
+mtcars
+mtcars %>% sample_n(24) #sampling
+mtcars %>% sample_frac(.7)
+dim(mtcars); nrow(mtcars)
+(index = sample(1:nrow(mtcars), size = .7*nrow(mtcars))) #22 rows out of 32
+mtcars[index,]
+dim(mtcars[index,]) 
+mtcars[-index,] #other 11 rows
+dim(mtcars[-index,])
+
+
+pinstall = c('rpart.plot', 'caTools', 'caret', 'arules', 'arulesViz', 'factoextra', 'dendextend', 'NbClust', 'cluster', 'fpc', 'amap', 'animation')
+install.packages(pinstall)
+
+
+
+
+pinstall <- c('gsheet', 'readxl', 'rJava', 'xlsx','wordcloud', 'wordcloud2', 'modeest','fdth','e1071' )
+tspackages <- c('timeSeries','xts','zoo','forecast','TTR','quantmod', 'lubridate','smooth','Mcomp')
+tmpackages <- c('twitteR', 'ROAuth', 'syuzhet')
+lppackages <- c('timeSeries','twitteR','lpSolve', 'linprog', 'lpSolveAPI')
+
+install.packages(lppackages)
+if (!require("quantmod")) {
+  install.packages("quantmod")
+  library(quantmod)
+}
+
+
+
+#data partition important
+library(caTools)
+head(mtcars) #partioning data of mtcars column for 'am' column
+sample=sample.split(Y=mtcars$am,SplitRatio = 0.7) #selecting 70% of the records randomly
+sample
+table(sample)
+prop.table(table(sample))
+y1= mtcars[sample==T,] #True Set, which are part of sample set
+y2= mtcars[sample==F,] #False Set
+table(y1$am) ; prop.table(table(y1$am)) #proportion of 0 and 1 in true set
+table(y2$am) ;prop.table(table(y2$am)) #proportion of 0 and 1 in false set, proportion will be same
+
+
+#another way of partioning
+library(caret) 
+(intrain = createDataPartition(y=mtcars$am, p=0.7, list=F)) #70% in train set
+train = mtcars[intrain,]
+test = mtcars[- intrain, ] 
+prop.table(table(train$am)); prop.table(table(test$am)) #proprtion of 0 and 1 in train and test set
